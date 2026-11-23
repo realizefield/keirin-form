@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>競輪選手養成所 受験準備シート</title>
+<style>
+/* layout: single column form, sticky progress bar, grouped sections */
+:root{
+  --ink:#1b2a3f; --muted:#5b6778; --navy:#1f3a5f; --line:#cfd8e3; --paper:#f4f7fb; --card:#ffffff; --accent:#c8501f; --ok:#1f7a4d;
+  --font:"Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic","Meiryo",sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font);color-scheme:light;line-height:1.7}
+.wrap{max-width:720px;margin:0 auto;padding:20px 16px 80px}
+header h1{font-size:1.5rem;margin:8px 0 4px;color:var(--navy);text-wrap:balance}
+header p{margin:4px 0;color:var(--muted)}
+.notice{background:#fff6ee;border:1px solid #f0cfb5;border-radius:8px;padding:10px 14px;margin:14px 0;font-size:.95rem}
+.bar{position:sticky;top:0;background:var(--paper);padding:10px 0 8px;z-index:5;border-bottom:1px solid var(--line)}
+.bar .track{height:8px;background:#dfe6ef;border-radius:99px;overflow:hidden}
+.bar .fill{height:100%;width:0;background:var(--navy);transition:width .2s}
+.bar .txt{font-size:.85rem;color:var(--muted);margin-top:4px}
+section{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:6px 16px 8px;margin:16px 0}
+section h2{font-size:1.1rem;color:var(--navy);border-bottom:2px solid var(--navy);padding:10px 0 6px;margin:0 0 6px}
+.q{padding:12px 0;border-bottom:1px dashed var(--line)}
+.q:last-child{border-bottom:0}
+.q label.t,.q .t{display:block;font-weight:700}
+.q .h{display:block;font-size:.85rem;color:var(--muted);margin:1px 0 6px}
+textarea,input[type=text]{width:100%;font:inherit;padding:10px;border:1px solid #9fb0c4;border-radius:8px;background:#fff;color:var(--ink)}
+textarea{min-height:90px;resize:vertical}
+textarea:focus,input:focus,button:focus-visible{outline:3px solid #8db4e8;outline-offset:1px}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opts label{display:flex;align-items:center;gap:6px;border:1px solid #9fb0c4;border-radius:99px;padding:6px 14px;cursor:pointer;background:#fff}
+.opts input{accent-color:var(--navy)}
+.opts label:has(input:checked){background:var(--navy);color:#fff;border-color:var(--navy)}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0}
+button{font:inherit;font-weight:700;border:0;border-radius:8px;padding:12px 20px;cursor:pointer}
+.primary{background:var(--navy);color:#fff}
+.ghost{background:#fff;color:var(--navy);border:1px solid var(--navy)}
+#result{display:none;margin-top:10px}
+#result textarea{min-height:260px;font-size:.92rem}
+#msg{font-weight:700;color:var(--ok);margin:6px 0;min-height:1.5em}
+.small{font-size:.85rem;color:var(--muted)}
+.line{color:var(--accent);font-weight:700}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>競輪選手養成所　受験準備シート</h1>
+  <p>受験生用　／　2次試験は12月2日です。</p>
+  <p>この内容をもとに、作文・SPI・面接の対策を一緒に作ります。うまく書こうとせず、思い出せることをそのまま書いてください。</p>
+</header>
+<div class="notice">氏名・電話番号・生年月日は書かなくてかまいません。分からない質問は空欄で大丈夫です。書いた内容はこの端末の中に自動で残ります。</div>
+
+<div class="bar"><div class="track"><div class="fill" id="fill"></div></div><div class="txt" id="count">0 / 0 問に回答</div></div>
+
+<form id="f" autocomplete="off"></form>
+
+<div class="actions">
+  <button type="button" class="primary" id="send">送信する</button>
+  <button type="button" class="ghost" id="make">文章にまとめる（LINE用）</button>
+  <button type="button" class="ghost" id="clear">入力をすべて消す</button>
+</div>
+
+<div id="sendmsg" role="status" style="font-weight:700;min-height:1.5em;margin:4px 0"></div>
+<div id="result">
+  <div id="msg"></div>
+  <textarea id="out" readonly aria-label="まとめた記入内容"></textarea>
+  <div class="actions">
+    <button type="button" class="primary" id="copy">コピーする</button>
+  </div>
+  <p class="small">コピーしたら、江原予備校 野田先生のLINE公式アカウントに貼り付けて送ってください。<span class="line">LINE ID：@735itfta</span>　電話 096-382-6761／メール kogen@coast.ocn.ne.jp</p>
+</div>
+</div>
+
+<script>
+var SECTIONS = [
+ {t:"1　基本情報", q:[
+  {id:"sex", t:"性別", h:"試験区分が分かれるため確認します", type:"radio", o:["男子","女子"]},
+  {id:"status", t:"現在の身分", type:"radio", o:["高校生","大学生・専門学生","社会人","その他"]},
+  {id:"statusNote", t:"学校名・仕事の内容など", h:"書いても書かなくてもかまいません", type:"text"},
+  {id:"kind", t:"受験区分", h:"募集要項や受験票で分かれば選んでください", type:"radio", o:["技能試験（自転車競技の経験者）","適性試験（未経験者）","分からない"]},
+  {id:"times", t:"受験回数", type:"radio", o:["今回が初めて","2回目","3回目以上"]},
+  {id:"first", t:"1次試験の結果", h:"合格した種目や記録が分かれば", type:"area"},
+  {id:"info2", t:"2次試験の案内で分かっていること", h:"作文の時間・字数、面接の形式、集合時刻など", type:"area"}
+ ]},
+ {t:"2　スポーツ・体力", q:[
+  {id:"sports", t:"これまでのスポーツ歴", h:"競技名・年数・ポジションなど", type:"area"},
+  {id:"captain", t:"キャプテン・副キャプテンの経験", h:"いつ、どのチームで。やってみて苦労したこと、学んだこと。なければ「なし」", type:"area"},
+  {id:"prize", t:"入賞歴", h:"大会名・年・順位・種目。県大会、全国大会、校内大会など、大きさは問いません。なければ「なし」", type:"area"},
+  {id:"bike", t:"自転車競技の経験", h:"始めた時期、練習の頻度、所属、大会の成績。なければ「なし」", type:"area"},
+  {id:"strong", t:"得意な種目・強み", h:"脚力、持久力、瞬発力など。測定記録があれば", type:"area"},
+  {id:"train", t:"今の練習内容と頻度", h:"週に何日、何をしているか", type:"area"},
+  {id:"care", t:"怪我・体調で気をつけていること", h:"話したくない場合は空欄でかまいません", type:"area"}
+ ]},
+ {t:"3　志望動機（面接・作文の中心になります）", q:[
+  {id:"know", t:"競輪を知ったきっかけ", h:"いつ、誰から、何を見て", type:"area"},
+  {id:"why", t:"競輪選手を目指そうと決めた理由", h:"一番大きな理由を最初に。次に理由を2つまで", type:"area", tall:1},
+  {id:"event", t:"その気持ちが強くなった出来事", h:"試合を見た、選手に会った、悔しい経験をしたなど、具体的に", type:"area", tall:1},
+  {id:"charm", t:"競輪の魅力だと思うところ", h:"自分の言葉で", type:"area"},
+  {id:"idol", t:"尊敬する選手", h:"名前と、どんな選手か（競輪選手でなくてもかまいません）", type:"area"},
+  {id:"idolWhy", t:"その選手を尊敬する理由", h:"試合や話を見聞きして、どこに心を動かされたか。具体的に", type:"area", tall:1},
+  {id:"future", t:"競輪選手になって、どうなりたいか", h:"卒業後・10年後のイメージ", type:"area"},
+  {id:"family", t:"家族や周りの人の反応", h:"応援されているか、心配されているか、どう話したか", type:"area"},
+  {id:"fail", t:"今回うまくいかなかったらどうするか", h:"今の考えを正直に", type:"area"}
+ ]},
+ {t:"4　自分について（面接でよく聞かれます）", q:[
+  {id:"good", t:"長所と、それが分かる体験", h:"具体的な出来事を1つ", type:"area"},
+  {id:"bad", t:"短所と、直すために工夫していること", type:"area"},
+  {id:"hard", t:"一番頑張ったこと", h:"何を、どれくらい、どうなったか", type:"area", tall:1},
+  {id:"miss", t:"失敗や挫折の経験と、そこから学んだこと", type:"area", tall:1},
+  {id:"team", t:"チームや集団で意識していること", h:"部活・仕事・寮生活などの経験", type:"area"},
+  {id:"vol", t:"ボランティアの経験", h:"いつ、どこで、何をしたか。そこで感じたこと、学んだこと。なければ「なし」", type:"area"},
+  {id:"worry", t:"厳しい訓練や共同生活で不安なこと", type:"area"},
+  {id:"hobby", t:"趣味・特技・好きなこと", type:"area"}
+ ]},
+ {t:"5　学習面（作文・SPI）", q:[
+  {id:"essay", t:"作文は得意ですか", h:"書いたことのある長さ（400字・800字など）も教えてください", type:"radio", o:["得意","ふつう","苦手"]},
+  {id:"essayNote", t:"作文について補足", type:"text"},
+  {id:"spi", t:"SPIや適性検査を受けた経験", h:"あれば、何をどこまで", type:"area"},
+  {id:"subj", t:"得意な教科・苦手な教科", h:"算数・数学、国語について特に", type:"area"},
+  {id:"time", t:"12月2日までに勉強できる時間", h:"平日・休日それぞれ、1日にどれくらいか", type:"area"}
+ ]},
+ {t:"6　最後に", q:[
+  {id:"anx", t:"今、一番不安なこと", h:"作文・SPI・面接のうち、どれが一番心配ですか", type:"area"},
+  {id:"ask", t:"先生に聞きたいこと・伝えておきたいこと", type:"area"}
+ ]}
+];
+// ここにGoogle Apps ScriptのウェブアプリURLを貼り付けます（手順書を参照）
+var GAS_URL = "";
+var KEY = "keirin-sheet-v1";
+var form = document.getElementById("f");
+var all = [];
+SECTIONS.forEach(function(s){
+  var sec = document.createElement("section");
+  var h = document.createElement("h2"); h.textContent = s.t; sec.appendChild(h);
+  s.q.forEach(function(q){
+    all.push(q);
+    var d = document.createElement("div"); d.className = "q";
+    var title = document.createElement(q.type==="radio" ? "span" : "label");
+    title.className = "t"; title.textContent = q.t;
+    if(q.type!=="radio"){ title.setAttribute("for", q.id); }
+    d.appendChild(title);
+    if(q.h){ var hh = document.createElement("span"); hh.className="h"; hh.textContent=q.h; d.appendChild(hh); }
+    if(q.type==="radio"){
+      var o = document.createElement("div"); o.className="opts"; o.setAttribute("role","radiogroup");
+      q.o.forEach(function(v,i){
+        var l = document.createElement("label");
+        var r = document.createElement("input"); r.type="radio"; r.name=q.id; r.value=v; r.id=q.id+"_"+i;
+        l.appendChild(r); l.appendChild(document.createTextNode(v)); o.appendChild(l);
+      });
+      d.appendChild(o);
+    } else if(q.type==="text"){
+      var i = document.createElement("input"); i.type="text"; i.id=q.id; i.name=q.id; d.appendChild(i);
+    } else {
+      var a = document.createElement("textarea"); a.id=q.id; a.name=q.id; if(q.tall){a.style.minHeight="130px";} d.appendChild(a);
+    }
+    sec.appendChild(d);
+  });
+  form.appendChild(sec);
+});
+
+function val(q){
+  if(q.type==="radio"){ var c = form.querySelector('input[name="'+q.id+'"]:checked'); return c ? c.value : ""; }
+  return document.getElementById(q.id).value.trim();
+}
+function update(){
+  var n = 0; all.forEach(function(q){ if(val(q)) n++; });
+  document.getElementById("fill").style.width = (n/all.length*100)+"%";
+  document.getElementById("count").textContent = n+" / "+all.length+" 問に回答";
+}
+function save(){
+  try{ var o={}; all.forEach(function(q){o[q.id]=val(q);}); localStorage.setItem(KEY, JSON.stringify(o)); }catch(e){}
+}
+function load(){
+  try{
+    var o = JSON.parse(localStorage.getItem(KEY)||"{}");
+    all.forEach(function(q){
+      var v = o[q.id]; if(!v) return;
+      if(q.type==="radio"){ var r = form.querySelector('input[name="'+q.id+'"][value="'+v.replace(/"/g,'\\"')+'"]'); if(r) r.checked=true; }
+      else { document.getElementById(q.id).value = v; }
+    });
+  }catch(e){}
+}
+form.addEventListener("input", function(){ update(); save(); });
+form.addEventListener("change", function(){ update(); save(); });
+form.addEventListener("submit", function(e){ e.preventDefault(); });
+
+document.getElementById("make").addEventListener("click", function(){
+  var lines = ["【受験生 受験準備シート】2次試験 12月2日",""];
+  SECTIONS.forEach(function(s){
+    lines.push("■"+s.t);
+    s.q.forEach(function(q){ var v = val(q); lines.push("・"+q.t+"："+(v||"（未記入）")); });
+    lines.push("");
+  });
+  var out = document.getElementById("out"); out.value = lines.join("\n");
+  document.getElementById("result").style.display = "block";
+  document.getElementById("msg").textContent = "";
+  out.scrollIntoView({behavior:"smooth", block:"center"});
+});
+document.getElementById("copy").addEventListener("click", function(){
+  var out = document.getElementById("out"), msg = document.getElementById("msg");
+  function ok(){ msg.textContent = "コピーしました。LINEに貼り付けて送ってください。"; }
+  function ng(){ out.focus(); out.select(); msg.textContent = "自動でコピーできませんでした。選択された文字を、手動でコピーしてください。"; }
+  try{
+    navigator.clipboard.writeText(out.value).then(ok, ng);
+  }catch(e){ ng(); }
+});
+document.getElementById("clear").addEventListener("click", function(){
+  var btn = this;
+  if(btn.dataset.sure!=="1"){ btn.dataset.sure="1"; btn.textContent="本当に消す（もう一度押す）"; setTimeout(function(){btn.dataset.sure="0"; btn.textContent="入力をすべて消す";},4000); return; }
+  form.reset(); try{localStorage.removeItem(KEY);}catch(e){}
+  btn.dataset.sure="0"; btn.textContent="入力をすべて消す";
+  document.getElementById("result").style.display="none"; update();
+});
+
+document.getElementById("send").addEventListener("click", function(){
+  var m = document.getElementById("sendmsg"), b = this;
+  if(!GAS_URL){ m.style.color="#c8501f"; m.textContent="送信先が未設定です。「文章にまとめる」から、LINEで送ってください。"; return; }
+  var labels = [], values = [];
+  all.forEach(function(q){ labels.push(q.t); values.push(val(q)); });
+  b.disabled = true; m.style.color="#5b6778"; m.textContent="送信中です…";
+  fetch(GAS_URL, {method:"POST", mode:"no-cors", headers:{"Content-Type":"text/plain;charset=utf-8"}, body: JSON.stringify({labels:labels, values:values})})
+   .then(function(){ m.style.color="#1f7a4d"; m.textContent="送信しました。ありがとうございました。"; b.disabled=false; })
+   .catch(function(){ m.style.color="#c8501f"; m.textContent="送信できませんでした。通信を確認して、もう一度押してください。うまくいかない場合は「文章にまとめる」からLINEで送ってください。"; b.disabled=false; });
+});
+load(); update();
+</script>
+</body>
+</html>
